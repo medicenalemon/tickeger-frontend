@@ -303,8 +303,13 @@
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+  }
+
   .mobile-header {
     display: flex;
+    width: 100%;
   }
 
   .mobile-backdrop {
@@ -323,6 +328,7 @@
 
   .main-content {
     margin-left: 0 !important;
+    width: 100%;
   }
 
   .page-container {
