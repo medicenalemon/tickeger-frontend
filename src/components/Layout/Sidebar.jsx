@@ -16,7 +16,7 @@ import {
 import { useState } from 'react';
 import './Layout.css';
 
-const Sidebar = () => {
+const Sidebar = ({ mobileMenuOpen, onClose }) => {
   const { user, logout, isAdmin } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
+    <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''} ${mobileMenuOpen ? 'sidebar-mobile-open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo" onClick={() => navigate('/')}>
           <img src="/logo.png" alt="Tickeger" className="sidebar-logo-img" />
@@ -57,6 +57,7 @@ const Sidebar = () => {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
+            onClick={onClose}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
             }

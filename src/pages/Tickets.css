@@ -158,5 +158,13 @@
   }
   .tickets-toolbar {
     flex-direction: column;
+    align-items: stretch;
+  }
+  .tickets-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tickets-filters .form-group {
+    width: 100%;
   }
 }

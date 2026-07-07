@@ -214,7 +214,8 @@
 }
 
 @media (max-width: 480px) {
-  .dashboard-summary {
+  .dashboard-summary,
+  .priority-grid {
     grid-template-columns: 1fr;
   }
 }
