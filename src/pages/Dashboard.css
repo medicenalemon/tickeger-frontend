@@ -1,0 +1,220 @@
+/* ========== DASHBOARD ========== */
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.dashboard-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  transition: all var(--transition-fast);
+  cursor: default;
+}
+
+.dashboard-stat-card:hover {
+  border-color: var(--border-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.stat-card-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.dashboard-recent {
+  grid-column: 1 / -1;
+}
+
+/* Status Bars */
+.status-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.status-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-bar-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-bar-track {
+  height: 6px;
+  background: var(--border-primary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.status-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s ease;
+  min-width: 0;
+}
+
+.status-bar-fill-abierto { background: var(--status-open); }
+.status-bar-fill-en_progreso { background: var(--status-in-progress); }
+.status-bar-fill-en_revision { background: var(--status-in-review); }
+.status-bar-fill-resuelto { background: var(--status-resolved); }
+.status-bar-fill-cerrado { background: var(--status-closed); }
+.status-bar-fill-rechazado { background: var(--status-rejected); }
+
+/* Priority Grid */
+.priority-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.priority-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+}
+
+.priority-item-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.priority-dot-baja { background: var(--priority-low); }
+.priority-dot-media { background: var(--priority-medium); }
+.priority-dot-alta { background: var(--priority-high); }
+.priority-dot-urgente { background: var(--priority-urgent); }
+
+.priority-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.priority-item-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.priority-item-count {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Recent Tickets */
+.recent-tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-ticket-item {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.recent-ticket-item:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-primary);
+}
+
+.recent-ticket-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.recent-ticket-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  font-family: monospace;
+}
+
+.recent-ticket-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-ticket-meta {
+  display: flex;
+  gap: var(--space-md);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-summary {
+    grid-template-columns: 1fr;
+  }
+}
