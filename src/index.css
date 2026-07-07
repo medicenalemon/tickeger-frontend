@@ -613,8 +613,4 @@ img {
 }
 
 /* ========== RESPONSIVE ========== */
-@media (max-width: 768px) {
-  :root {
-    --sidebar-width: 0px;
-  }
-}
+/* Removed global --sidebar-width override to allow mobile sidebar to have width */
