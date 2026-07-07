@@ -1,4 +1,4 @@
-import { Mail, Github, Linkedin, Globe, Code } from 'lucide-react';
+import { Mail, GitBranch, Briefcase, Globe, Code } from 'lucide-react';
 import './About.css';
 
 const About = () => {
@@ -48,11 +48,11 @@ const About = () => {
                 <span>Portfolio</span>
               </a>
               <a href="https://github.com/medicenalemon" target="_blank" rel="noopener noreferrer" className="about-link-btn" title="GitHub">
-                <Github size={20} />
+                <GitBranch size={20} />
                 <span>GitHub</span>
               </a>
               <a href="https://www.linkedin.com/in/mauricioalemon" target="_blank" rel="noopener noreferrer" className="about-link-btn" title="LinkedIn">
-                <Linkedin size={20} />
+                <Briefcase size={20} />
                 <span>LinkedIn</span>
               </a>
             </div>
