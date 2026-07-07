@@ -66,17 +66,24 @@ const Notifications = () => {
     }).format(date);
   };
 
-  if (loading) return <div className="loading-spinner">Cargando notificaciones...</div>;
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="loading-screen">
+          <div className="spinner spinner-lg"></div>
+          <p>Cargando notificaciones...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="notifications-page">
-      <div className="notifications-header">
-        <h1 className="page-title">
-          <Bell size={28} /> Notificaciones
-        </h1>
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Notificaciones</h1>
+        </div>
       </div>
-
-      {error && <div className="error-message">{error}</div>}
 
       <div className="notifications-list">
         {notifications.length === 0 ? (
