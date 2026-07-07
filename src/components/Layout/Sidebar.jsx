@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Info
+  Info,
+  Bell
 } from 'lucide-react';
 import { useState } from 'react';
 import './Layout.css';
@@ -30,6 +31,7 @@ const Sidebar = ({ mobileMenuOpen, onClose }) => {
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/notifications', icon: Bell, label: 'Notificaciones' },
     { to: '/tickets', icon: Ticket, label: 'Tickets' },
     { to: '/tickets/new', icon: PlusCircle, label: 'Nuevo Ticket' },
     ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuarios' }] : []),

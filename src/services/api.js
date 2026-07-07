@@ -53,4 +53,10 @@ export const userService = {
   updateProfile: (data) => API.put('/users/profile', data),
 };
 
+// Notification services
+export const notificationService = {
+  getAll: () => API.get('/notifications'),
+  markAsRead: (id) => API.put(`/notifications/${id}/read`),
+};
+
 export default API;
