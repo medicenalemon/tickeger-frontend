@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  Info
 } from 'lucide-react';
 import { useState } from 'react';
 import './Layout.css';
@@ -33,6 +34,7 @@ const Sidebar = ({ mobileMenuOpen, onClose }) => {
     { to: '/tickets/new', icon: PlusCircle, label: 'Nuevo Ticket' },
     ...(isAdmin ? [{ to: '/users', icon: Users, label: 'Usuarios' }] : []),
     { to: '/profile', icon: User, label: 'Mi Perfil' },
+    { to: '/about', icon: Info, label: 'Acerca de' },
   ];
 
   return (

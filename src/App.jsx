@@ -15,6 +15,7 @@ import CreateTicket from './pages/CreateTicket';
 import TicketDetail from './pages/TicketDetail';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
+import About from './pages/About';
 
 // Protect Routes Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -55,6 +56,7 @@ const AppRoutes = () => {
         <Route path="/tickets/new" element={<CreateTicket />} />
         <Route path="/tickets/:id" element={<TicketDetail />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/about" element={<About />} />
         
         {/* Admin only route */}
         <Route path="/users" element={
