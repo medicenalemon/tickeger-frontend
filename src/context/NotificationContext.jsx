@@ -40,7 +40,7 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ unreadCount, decrementUnread, fetchUnreadCount }}>
+    <NotificationContext.Provider value={{ unreadCount, setUnreadCount, decrementUnread, fetchUnreadCount }}>
       {children}
     </NotificationContext.Provider>
   );

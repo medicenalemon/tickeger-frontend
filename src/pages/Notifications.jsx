@@ -9,7 +9,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { decrementUnread } = useNotifications();
+  const { decrementUnread, setUnreadCount } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +20,9 @@ const Notifications = () => {
     try {
       const { data } = await notificationService.getAll();
       setNotifications(data);
+      // Synchronize the global unread count
+      const unread = data.filter(n => !n.isRead).length;
+      setUnreadCount(unread);
     } catch (err) {
       setError('Error al cargar las notificaciones');
     } finally {
@@ -57,6 +60,29 @@ const Notifications = () => {
       default:
         return <AlertCircle size={20} className="notification-icon-default" />;
     }
+  };
+
+  const formatNotificationMessage = (message) => {
+    if (!message) return '';
+    let formattedMsg = message;
+    
+    // Status labels object map
+    const STATUS_LABELS = {
+      abierto: 'Abierto',
+      en_progreso: 'En Progreso',
+      en_revision: 'En Revisión',
+      resuelto: 'Resuelto',
+      cerrado: 'Cerrado',
+      rechazado: 'Rechazado'
+    };
+
+    // Replace any occurrence of the raw status string with the formatted label
+    Object.entries(STATUS_LABELS).forEach(([key, label]) => {
+      const regex = new RegExp(`\\b${key}\\b`, 'g');
+      formattedMsg = formattedMsg.replace(regex, `"${label}"`);
+    });
+    
+    return formattedMsg;
   };
 
   const formatDate = (dateString) => {
@@ -108,7 +134,7 @@ const Notifications = () => {
                 {getIcon(notification.type)}
               </div>
               <div className="notification-content">
-                <p className="notification-message">{notification.message}</p>
+                <p className="notification-message">{formatNotificationMessage(notification.message)}</p>
                 <div className="notification-meta">
                   {notification.ticket && (
                     <span className="notification-ticket-ref">
