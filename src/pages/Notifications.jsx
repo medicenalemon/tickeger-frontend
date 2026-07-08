@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationService } from '../services/api';
+import { useNotifications } from '../context/NotificationContext';
 import { Bell, CheckCircle, MessageSquare, Tag, AlertCircle } from 'lucide-react';
 import './Notifications.css';
 
@@ -8,6 +9,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { decrementUnread } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +34,7 @@ const Notifications = () => {
         setNotifications((prev) =>
           prev.map((n) => (n._id === notification._id ? { ...n, isRead: true } : n))
         );
+        decrementUnread();
       } catch (err) {
         console.error('Error al marcar como leída:', err);
       }

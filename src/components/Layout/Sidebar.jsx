@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNotifications } from '../../context/NotificationContext';
 import {
   LayoutDashboard,
   Ticket,
@@ -21,6 +22,7 @@ import './Layout.css';
 const Sidebar = ({ mobileMenuOpen, onClose }) => {
   const { user, logout, isAdmin } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -66,7 +68,12 @@ const Sidebar = ({ mobileMenuOpen, onClose }) => {
               `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
             }
           >
-            <item.icon size={20} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <item.icon size={20} />
+              {item.label === 'Notificaciones' && unreadCount > 0 && (
+                <span className="sidebar-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+              )}
+            </div>
             {!collapsed && <span>{item.label}</span>}
           </NavLink>
         ))}

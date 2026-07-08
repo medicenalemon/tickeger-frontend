@@ -33,6 +33,7 @@
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  min-height: 90px;
 }
 
 .notification-item:hover {
@@ -112,4 +113,24 @@
   border-radius: var(--radius-sm);
   font-family: monospace;
   border: 1px solid var(--border-primary);
+}
+
+@media (max-width: 768px) {
+  .notification-item {
+    padding: var(--space-md);
+    min-height: 80px;
+  }
+  
+  .notification-unread-indicator {
+    top: var(--space-md);
+    right: var(--space-md);
+    transform: none;
+    width: 8px;
+    height: 8px;
+  }
+  
+  .notification-meta {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
 }
