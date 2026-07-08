@@ -82,6 +82,9 @@ const Notifications = () => {
       <div className="page-header">
         <div>
           <h1 className="page-title">Notificaciones</h1>
+          <p className="page-subtitle">
+            Revisa y gestiona tus alertas y actualizaciones
+          </p>
         </div>
       </div>
 
