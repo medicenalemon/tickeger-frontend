@@ -44,7 +44,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-lg);
-  max-width: 500px;
+  width: 100%;
 }
 
 .profile-form .form-group {
