@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ticketService } from '../services/api';
-import { Send, ArrowLeft } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { PRIORITY_LABELS, CATEGORY_LABELS } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import './CreateTicket.css';
@@ -39,9 +39,7 @@ const CreateTicket = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: 8 }}>
-            <ArrowLeft size={16} /> Volver
-          </button>
+
           <h1 className="page-title">Nuevo Ticket</h1>
           <p className="page-subtitle">Crea una nueva petición de soporte o mantenimiento</p>
         </div>
