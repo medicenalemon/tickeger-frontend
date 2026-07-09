@@ -210,3 +210,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (min-width: 1920px) {
+  .ticket-detail-layout {
+    grid-template-columns: 1fr 400px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .ticket-detail-layout {
+    grid-template-columns: 1fr 500px;
+  }
+}

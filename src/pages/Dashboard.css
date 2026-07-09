@@ -16,6 +16,7 @@
   gap: var(--space-md);
   transition: all var(--transition-fast);
   cursor: default;
+  min-width: 0;
 }
 
 .dashboard-stat-card:hover {
@@ -140,11 +141,15 @@
 .priority-item-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .priority-item-label {
   font-size: 13px;
   color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .priority-item-count {
@@ -213,9 +218,13 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .dashboard-summary,
   .priority-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .dashboard-stat-card {
+    padding: var(--space-md);
   }
 }

@@ -468,6 +468,8 @@ img {
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   transition: all var(--transition-fast);
+  min-width: 0;
+  word-wrap: break-word;
 }
 
 .card:hover {
@@ -479,6 +481,8 @@ img {
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
 }
 
 .card-title {
@@ -613,4 +617,28 @@ img {
 }
 
 /* ========== RESPONSIVE ========== */
-/* Removed global --sidebar-width override to allow mobile sidebar to have width */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-md);
+  }
+}
+
+/* ========== LARGE SCREENS (Full HD, 4K) ========== */
+@media (min-width: 1920px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    font-size: 16px;
+    --space-sm: 10px;
+    --space-md: 20px;
+    --space-lg: 32px;
+    --space-xl: 40px;
+    --sidebar-width: 320px;
+    --sidebar-collapsed: 84px;
+    --header-height: 80px;
+  }
+}

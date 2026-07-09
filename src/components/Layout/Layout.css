@@ -238,6 +238,7 @@
 .page-container {
   padding: var(--space-xl);
   max-width: 1400px;
+  margin: 0 auto;
   animation: fadeIn var(--transition-normal) forwards;
 }
 
@@ -349,5 +350,36 @@
 
   .page-container {
     padding: var(--space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: var(--space-sm);
+  }
+}
+
+/* ========== LARGE SCREENS (Full HD, 2K, 4K) ========== */
+@media (min-width: 1600px) {
+  .page-container {
+    max-width: 1536px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .page-container {
+    max-width: 1800px;
+  }
+}
+
+@media (min-width: 2048px) {
+  .page-container {
+    max-width: 1920px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .page-container {
+    max-width: 2400px;
   }
 }
