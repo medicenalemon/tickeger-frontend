@@ -119,4 +119,18 @@
   .about-card {
     padding: var(--space-lg) !important;
   }
+
+  .about-logo-container {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .about-logo-img {
+    width: 80px;
+    height: 120px;
+  }
+
+  .about-brand-text {
+    font-size: 32px;
+  }
 }
