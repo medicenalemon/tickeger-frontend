@@ -42,12 +42,21 @@
 .profile-form {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-lg);
   max-width: 500px;
+}
+
+.profile-form .form-group {
+  width: 100%;
 }
 
 @media (max-width: 768px) {
   .profile-layout {
     grid-template-columns: 1fr;
+  }
+  
+  .profile-form {
+    align-items: stretch;
   }
 }
