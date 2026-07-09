@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -24,6 +24,7 @@ const Sidebar = ({ mobileMenuOpen, onClose }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
   const handleLogout = () => {
@@ -64,9 +65,12 @@ const Sidebar = ({ mobileMenuOpen, onClose }) => {
             to={item.to}
             end={item.to === '/'}
             onClick={onClose}
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
-            }
+            className={({ isActive }) => {
+              if (item.to === '/tickets' && location.pathname === '/tickets/new') {
+                return 'sidebar-link';
+              }
+              return `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`;
+            }}
           >
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <item.icon size={20} />
