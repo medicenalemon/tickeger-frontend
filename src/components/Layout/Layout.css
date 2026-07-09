@@ -357,6 +357,15 @@
   .page-container {
     padding: var(--space-sm);
   }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .page-header .btn {
+    width: 100%;
+  }
 }
 
 /* ========== LARGE SCREENS (Full HD, 2K, 4K) ========== */

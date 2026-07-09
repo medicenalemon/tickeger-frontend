@@ -149,12 +149,25 @@
     flex-direction: column;
     align-items: flex-start;
   }
+  .ticket-card-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    width: 100%;
+  }
+  .ticket-card-title,
+  .ticket-card-desc {
+    white-space: normal;
+    max-width: 100%;
+  }
   .ticket-card-meta {
     flex-wrap: wrap;
     width: 100%;
+    margin-top: var(--space-sm);
   }
   .ticket-card-info {
     text-align: left;
+    margin-top: var(--space-xs);
   }
   .tickets-toolbar {
     flex-direction: column;
