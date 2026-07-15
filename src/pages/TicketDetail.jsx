@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { ticketService, userService } from '../services/api';
 import {
   ArrowLeft, Send, UserCheck, Clock, Tag, Layers,
-  MessageSquare, Calendar, User as UserIcon, AlertTriangle
+  MessageSquare, Calendar, User as UserIcon, AlertTriangle,
+  Pencil, X, Save
 } from 'lucide-react';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS, formatDateTime, timeAgo, getInitials } from '../utils/helpers';
 import toast from 'react-hot-toast';
@@ -21,6 +22,11 @@ const TicketDetail = () => {
   const [users, setUsers] = useState([]);
   const [showAssign, setShowAssign] = useState(false);
   const [showStatusChange, setShowStatusChange] = useState(false);
+
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ title: '', description: '', priority: '', category: '' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchTicket();
@@ -84,6 +90,48 @@ const TicketDetail = () => {
     }
   };
 
+  // Edit handlers
+  const startEditing = () => {
+    setEditForm({
+      title: ticket.title,
+      description: ticket.description,
+      priority: ticket.priority,
+      category: ticket.category,
+    });
+    setIsEditing(true);
+    setShowStatusChange(false);
+    setShowAssign(false);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditForm({ title: '', description: '', priority: '', category: '' });
+  };
+
+  const handleEditChange = (e) => {
+    setEditForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editForm.title.trim() || !editForm.description.trim()) {
+      toast.error('El título y la descripción son obligatorios');
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data } = await ticketService.update(id, editForm);
+      setTicket(data);
+      setIsEditing(false);
+      toast.success('Ticket actualizado correctamente');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al actualizar ticket');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const canEdit = isAdmin || ticket?.createdBy?._id === user?._id;
+
   if (loading) {
     return (
       <div className="page-container">
@@ -105,19 +153,87 @@ const TicketDetail = () => {
         <div className="ticket-detail-main">
           <div className="ticket-detail-header">
             <span className="ticket-detail-number">{ticket.ticketNumber}</span>
-            <h1 className="ticket-detail-title">{ticket.title}</h1>
-            <div className="ticket-detail-badges">
-              <span className={`badge badge-status-${ticket.status}`}>{STATUS_LABELS[ticket.status]}</span>
-              <span className={`badge badge-priority-${ticket.priority}`}>{PRIORITY_LABELS[ticket.priority]}</span>
-              <span className="badge" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
-                {CATEGORY_LABELS[ticket.category]}
-              </span>
-            </div>
+
+            {isEditing ? (
+              <div className="ticket-edit-section animate-fade-in">
+                <div className="form-group">
+                  <label className="form-label">Título *</label>
+                  <input
+                    type="text"
+                    name="title"
+                    className="form-input"
+                    value={editForm.title}
+                    onChange={handleEditChange}
+                    maxLength={200}
+                    placeholder="Título del ticket"
+                    autoFocus
+                  />
+                </div>
+              </div>
+            ) : (
+              <h1 className="ticket-detail-title">{ticket.title}</h1>
+            )}
+
+            {!isEditing && (
+              <div className="ticket-detail-badges">
+                <span className={`badge badge-status-${ticket.status}`}>{STATUS_LABELS[ticket.status]}</span>
+                <span className={`badge badge-priority-${ticket.priority}`}>{PRIORITY_LABELS[ticket.priority]}</span>
+                <span className="badge" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
+                  {CATEGORY_LABELS[ticket.category]}
+                </span>
+              </div>
+            )}
           </div>
 
-          <div className="ticket-detail-description card">
-            <p>{ticket.description}</p>
-          </div>
+          {isEditing ? (
+            <div className="ticket-edit-section animate-fade-in">
+              <div className="form-group">
+                <label className="form-label">Descripción *</label>
+                <textarea
+                  name="description"
+                  className="form-textarea"
+                  value={editForm.description}
+                  onChange={handleEditChange}
+                  rows={6}
+                  maxLength={5000}
+                  placeholder="Descripción del ticket"
+                />
+              </div>
+
+              <div className="ticket-edit-row">
+                <div className="form-group">
+                  <label className="form-label">Prioridad</label>
+                  <select name="priority" className="form-select" value={editForm.priority} onChange={handleEditChange}>
+                    {Object.entries(PRIORITY_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Categoría</label>
+                  <select name="category" className="form-select" value={editForm.category} onChange={handleEditChange}>
+                    {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="ticket-edit-actions">
+                <button type="button" className="btn btn-ghost" onClick={cancelEditing} disabled={saving}>
+                  <X size={16} /> Cancelar
+                </button>
+                <button type="button" className="btn btn-primary" onClick={handleSaveEdit} disabled={saving}>
+                  {saving ? <div className="spinner"></div> : <Save size={16} />}
+                  {saving ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="ticket-detail-description card">
+              <p>{ticket.description}</p>
+            </div>
+          )}
 
           {/* Comments Section */}
           <div className="ticket-comments-section">
@@ -207,6 +323,13 @@ const TicketDetail = () => {
             <div className="card ticket-actions-card">
               <h3 className="card-title" style={{ marginBottom: 16 }}>Acciones</h3>
               <div className="ticket-actions-list">
+                {/* Edit Button */}
+                {canEdit && !isEditing && (
+                  <button className="btn btn-edit" style={{ width: '100%' }} onClick={startEditing}>
+                    <Pencil size={16} /> Editar Ticket
+                  </button>
+                )}
+
                 <div style={{ position: 'relative' }}>
                   <button className="btn btn-secondary" style={{ width: '100%' }}
                     onClick={() => { setShowStatusChange(!showStatusChange); setShowAssign(false); }}>
