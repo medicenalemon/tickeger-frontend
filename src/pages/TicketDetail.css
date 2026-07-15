@@ -240,21 +240,97 @@
 }
 
 .btn-edit {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
-  border: none;
+  background: transparent;
+  color: #ef4444;
+  border: 2px solid #ef4444;
   font-weight: 600;
   transition: all var(--transition-fast);
 }
 
 .btn-edit:hover {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  background: #ef4444;
+  color: #fff;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
 }
 
 .btn-edit:active {
   transform: translateY(0);
+}
+
+/* ========== DELETE BUTTON ========== */
+.btn-delete {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.btn-delete:active {
+  transform: translateY(0);
+}
+
+/* ========== DELETE CONFIRMATION MODAL ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-lg);
+}
+
+.modal-delete {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-delete-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-lg);
+}
+
+.modal-delete-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.modal-delete-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-xl);
+}
+
+.modal-delete-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
 }
 
 @media (max-width: 900px) {

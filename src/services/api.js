@@ -42,6 +42,7 @@ export const ticketService = {
   changeStatus: (id, data) => API.put(`/tickets/${id}/status`, data),
   addComment: (id, data) => API.post(`/tickets/${id}/comments`, data),
   getStats: () => API.get('/tickets/stats'),
+  delete: (id) => API.delete(`/tickets/${id}`),
 };
 
 // User services

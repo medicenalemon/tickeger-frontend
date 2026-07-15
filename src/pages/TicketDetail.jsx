@@ -5,7 +5,7 @@ import { ticketService, userService } from '../services/api';
 import {
   ArrowLeft, Send, UserCheck, Clock, Tag, Layers,
   MessageSquare, Calendar, User as UserIcon, AlertTriangle,
-  Pencil, X, Save
+  Pencil, X, Save, Trash2
 } from 'lucide-react';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS, formatDateTime, timeAgo, getInitials } from '../utils/helpers';
 import toast from 'react-hot-toast';
@@ -27,6 +27,10 @@ const TicketDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ title: '', description: '', priority: '', category: '' });
   const [saving, setSaving] = useState(false);
+
+  // Delete state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchTicket();
@@ -131,6 +135,20 @@ const TicketDetail = () => {
   };
 
   const canEdit = isAdmin || ticket?.createdBy?._id === user?._id;
+
+  // Delete handler
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await ticketService.delete(id);
+      toast.success('Ticket eliminado correctamente');
+      navigate('/tickets');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al eliminar ticket');
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -368,11 +386,44 @@ const TicketDetail = () => {
                     )}
                   </div>
                 )}
+
+                {/* Delete Button - Admin only */}
+                {isAdmin && (
+                  <button className="btn btn-delete" style={{ width: '100%' }}
+                    onClick={() => setShowDeleteConfirm(true)}>
+                    <Trash2 size={16} /> Eliminar Ticket
+                  </button>
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="modal-overlay animate-fade-in" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="modal-delete animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-delete-icon">
+              <Trash2 size={32} />
+            </div>
+            <h3 className="modal-delete-title">¿Eliminar este ticket?</h3>
+            <p className="modal-delete-text">
+              Estás a punto de eliminar el ticket <strong>{ticket.ticketNumber}</strong>: "{ticket.title}". 
+              Esta acción no se puede deshacer y se eliminarán todos los comentarios y notificaciones asociadas.
+            </p>
+            <div className="modal-delete-actions">
+              <button className="btn btn-secondary" onClick={() => setShowDeleteConfirm(false)} disabled={deleting}>
+                Cancelar
+              </button>
+              <button className="btn btn-delete" onClick={handleDelete} disabled={deleting}>
+                {deleting ? <div className="spinner"></div> : <Trash2 size={16} />}
+                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
