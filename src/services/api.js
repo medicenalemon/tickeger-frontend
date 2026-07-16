@@ -43,6 +43,8 @@ export const ticketService = {
   addComment: (id, data) => API.post(`/tickets/${id}/comments`, data),
   getStats: () => API.get('/tickets/stats'),
   delete: (id) => API.delete(`/tickets/${id}`),
+  linkRelated: (id, relatedId) => API.post(`/tickets/${id}/related/${relatedId}`),
+  unlinkRelated: (id, relatedId) => API.delete(`/tickets/${id}/related/${relatedId}`),
 };
 
 // User services
@@ -52,12 +54,21 @@ export const userService = {
   update: (id, data) => API.put(`/users/${id}`, data),
   delete: (id) => API.delete(`/users/${id}`),
   updateProfile: (data) => API.put('/users/profile', data),
+  updatePassword: (data) => API.put('/users/profile/password', data),
 };
 
 // Notification services
 export const notificationService = {
   getAll: () => API.get('/notifications'),
   markAsRead: (id) => API.put(`/notifications/${id}/read`),
+};
+
+// Template services
+export const templateService = {
+  getAll: () => API.get('/templates'),
+  create: (data) => API.post('/templates', data),
+  update: (id, data) => API.put(`/templates/${id}`, data),
+  delete: (id) => API.delete(`/templates/${id}`),
 };
 
 export default API;

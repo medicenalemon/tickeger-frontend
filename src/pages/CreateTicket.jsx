@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ticketService } from '../services/api';
-import { Send } from 'lucide-react';
+import { Send, Paperclip, X } from 'lucide-react';
 import { PRIORITY_LABELS, CATEGORY_LABELS } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import './CreateTicket.css';
@@ -11,6 +11,7 @@ const CreateTicket = () => {
   const [form, setForm] = useState({
     title: '', description: '', priority: 'media', category: 'otro'
   });
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -25,7 +26,17 @@ const CreateTicket = () => {
     }
     setLoading(true);
     try {
-      const { data } = await ticketService.create(form);
+      const formData = new FormData();
+      formData.append('title', form.title);
+      formData.append('description', form.description);
+      formData.append('priority', form.priority);
+      formData.append('category', form.category);
+      
+      attachments.forEach(file => {
+        formData.append('attachments', file);
+      });
+
+      const { data } = await ticketService.create(formData);
       toast.success(`Ticket ${data.ticketNumber} creado exitosamente`);
       navigate(`/tickets/${data._id}`);
     } catch (error) {
@@ -83,6 +94,33 @@ const CreateTicket = () => {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label"><Paperclip size={14} style={{ marginRight: 4 }} /> Adjuntar Archivos (Opcional, Máx 5MB c/u)</label>
+            <input 
+              type="file" 
+              multiple 
+              className="form-input" 
+              onChange={(e) => setAttachments(Array.from(e.target.files))}
+              accept=".jpg,.jpeg,.png,.pdf,.docx,.txt,.csv"
+            />
+            {attachments.length > 0 && (
+              <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {attachments.map((file, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    <Paperclip size={12} /> {file.name} 
+                    <button 
+                      type="button" 
+                      onClick={() => setAttachments(attachments.filter((_, index) => index !== i))}
+                      style={{ background: 'none', border: 'none', color: 'var(--status-rejected)', cursor: 'pointer', padding: 0 }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="create-ticket-actions">

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ticketService } from '../services/api';
-import { Search, Filter, PlusCircle, Ticket as TicketIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, PlusCircle, Ticket as TicketIcon, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS, formatDate } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import './Tickets.css';
@@ -15,8 +15,9 @@ const Tickets = () => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
-  const [filters, setFilters] = useState({ status: '', priority: '', search: '' });
+  const [filters, setFilters] = useState({ status: '', priority: '', search: '', startDate: '', endDate: '' });
   const [showFilters, setShowFilters] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchTickets();
@@ -29,6 +30,8 @@ const Tickets = () => {
       if (filters.status) params.status = filters.status;
       if (filters.priority) params.priority = filters.priority;
       if (filters.search) params.search = filters.search;
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
       const { data } = await ticketService.getAll(params);
       setTickets(data.tickets);
       setTotal(data.total);
@@ -51,6 +54,59 @@ const Tickets = () => {
     setPage(1);
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const params = { export: true };
+      if (filters.status) params.status = filters.status;
+      if (filters.priority) params.priority = filters.priority;
+      if (filters.search) params.search = filters.search;
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
+      
+      const { data } = await ticketService.getAll(params);
+      
+      if (!data.tickets || data.tickets.length === 0) {
+        toast.error('No hay tickets para exportar con estos filtros');
+        return;
+      }
+
+      // Generate CSV
+      const headers = ['Número', 'Título', 'Estado', 'Prioridad', 'Categoría', 'Creador', 'Asignado', 'Fecha de Creación'];
+      const csvRows = [headers.join(',')];
+
+      data.tickets.forEach(t => {
+        const row = [
+          t.ticketNumber,
+          `"${(t.title || '').replace(/"/g, '""')}"`,
+          STATUS_LABELS[t.status] || t.status,
+          PRIORITY_LABELS[t.priority] || t.priority,
+          CATEGORY_LABELS[t.category] || t.category,
+          `"${(t.createdBy?.name || '').replace(/"/g, '""')}"`,
+          `"${(t.assignedTo?.name || 'Sin Asignar').replace(/"/g, '""')}"`,
+          formatDate(t.createdAt)
+        ];
+        csvRows.push(row.join(','));
+      });
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' }); // \uFEFF is for UTF-8 BOM
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `tickets_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Tickets exportados correctamente');
+    } catch (error) {
+      toast.error('Error al exportar tickets');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -58,9 +114,15 @@ const Tickets = () => {
           <h1 className="page-title">Tickets</h1>
           <p className="page-subtitle">{total} peticiones en total</p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate('/tickets/new')}>
-          <PlusCircle size={18} /> Nuevo Ticket
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn btn-secondary" onClick={handleExport} disabled={exporting || tickets.length === 0}>
+            {exporting ? <div className="spinner"></div> : <Download size={18} />}
+            <span className="hide-on-mobile">{exporting ? 'Exportando...' : 'Exportar CSV'}</span>
+          </button>
+          <button className="btn btn-primary" onClick={() => navigate('/tickets/new')}>
+            <PlusCircle size={18} /> <span className="hide-on-mobile">Nuevo Ticket</span>
+          </button>
+        </div>
       </div>
 
       {/* Search & Filters */}
@@ -100,7 +162,25 @@ const Tickets = () => {
               ))}
             </select>
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={() => { setFilters({ status: '', priority: '', search: '' }); setPage(1); }}>
+          <div className="form-group">
+            <label className="form-label">Desde</label>
+            <input 
+              type="date" 
+              className="form-input" 
+              value={filters.startDate} 
+              onChange={(e) => handleFilterChange('startDate', e.target.value)} 
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Hasta</label>
+            <input 
+              type="date" 
+              className="form-input" 
+              value={filters.endDate} 
+              onChange={(e) => handleFilterChange('endDate', e.target.value)} 
+            />
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => { setFilters({ status: '', priority: '', search: '', startDate: '', endDate: '' }); setPage(1); }}>
             Limpiar filtros
           </button>
         </div>

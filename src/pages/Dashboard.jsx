@@ -75,7 +75,7 @@ const Dashboard = () => {
 
   const summaryCards = [
     {
-      label: 'Total Tickets',
+      label: isAdmin ? 'Total Tickets' : 'Mis Tickets',
       value: stats?.total || 0,
       icon: Ticket,
       color: 'var(--color-primary)',
@@ -110,7 +110,7 @@ const Dashboard = () => {
         <div>
           <h1 className="page-title">Dashboard</h1>
           <p className="page-subtitle">
-            Bienvenido, {user?.name} — {isAdmin ? 'Vista de Administrador' : 'Vista General'}
+            Bienvenido, {user?.name} — {isAdmin ? 'Vista de Administrador' : 'Mis Estadísticas'}
           </p>
         </div>
       </div>

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ticketService, userService } from '../services/api';
+import { ticketService, userService, templateService } from '../services/api';
 import {
   ArrowLeft, Send, UserCheck, Clock, Tag, Layers,
   MessageSquare, Calendar, User as UserIcon, AlertTriangle,
-  Pencil, X, Save, Trash2
+  Pencil, X, Save, Trash2, History, Activity, Paperclip, Download, Link2, Unlink
 } from 'lucide-react';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS, formatDateTime, timeAgo, getInitials } from '../utils/helpers';
 import toast from 'react-hot-toast';
@@ -32,10 +32,28 @@ const TicketDetail = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Tabs state
+  const [activeTab, setActiveTab] = useState('comments');
+
+  // Related tickets
+  const [showLinkTicket, setShowLinkTicket] = useState(false);
+  const [linkTicketId, setLinkTicketId] = useState('');
+  const [linking, setLinking] = useState(false);
+
+  // Templates
+  const [templates, setTemplates] = useState([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+
+  // Comment attachments
+  const [commentAttachments, setCommentAttachments] = useState([]);
+
   useEffect(() => {
     fetchTicket();
     fetchUsers();
-  }, [id]);
+    if (isAdmin) {
+      fetchTemplates();
+    }
+  }, [id, isAdmin]);
 
   const fetchTicket = async () => {
     try {
@@ -53,6 +71,13 @@ const TicketDetail = () => {
     try {
       const { data } = await userService.getAll();
       setUsers(data.filter(u => u.isActive));
+    } catch (error) { /* ignore */ }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const { data } = await templateService.getAll();
+      setTemplates(data);
     } catch (error) { /* ignore */ }
   };
 
@@ -80,18 +105,50 @@ const TicketDetail = () => {
 
   const handleComment = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) return;
+    if (!comment.trim() && commentAttachments.length === 0) return;
     setSendingComment(true);
+    
     try {
-      const { data } = await ticketService.addComment(id, { text: comment });
+      const formData = new FormData();
+      formData.append('text', comment);
+      
+      commentAttachments.forEach((file) => {
+        formData.append('attachments', file);
+      });
+
+      const { data } = await ticketService.addComment(id, formData);
       setTicket(data);
       setComment('');
+      setCommentAttachments([]);
       toast.success('Comentario agregado');
     } catch (error) {
       toast.error('Error al agregar comentario');
     } finally {
       setSendingComment(false);
     }
+  };
+
+  const handleCommentFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    const validFiles = files.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`El archivo ${file.name} supera los 5MB`);
+        return false;
+      }
+      return true;
+    });
+
+    if (commentAttachments.length + validFiles.length > 5) {
+      toast.error('Máximo 5 archivos por comentario');
+      return;
+    }
+
+    setCommentAttachments(prev => [...prev, ...validFiles]);
+  };
+
+  const removeCommentAttachment = (indexToRemove) => {
+    setCommentAttachments(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   // Edit handlers
@@ -147,6 +204,33 @@ const TicketDetail = () => {
       toast.error(error.response?.data?.message || 'Error al eliminar ticket');
       setDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleLinkTicket = async (e) => {
+    e.preventDefault();
+    if (!linkTicketId.trim()) return;
+    setLinking(true);
+    try {
+      const { data } = await ticketService.linkRelated(ticket._id, linkTicketId);
+      setTicket(data);
+      setShowLinkTicket(false);
+      setLinkTicketId('');
+      toast.success('Ticket vinculado correctamente');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al vincular ticket');
+    } finally {
+      setLinking(false);
+    }
+  };
+
+  const handleUnlinkTicket = async (relatedId) => {
+    try {
+      const { data } = await ticketService.unlinkRelated(ticket._id, relatedId);
+      setTicket(data);
+      toast.success('Ticket desvinculado');
+    } catch (error) {
+      toast.error('Error al desvincular ticket');
     }
   };
 
@@ -250,43 +334,180 @@ const TicketDetail = () => {
           ) : (
             <div className="ticket-detail-description card">
               <p>{ticket.description}</p>
+              
+              {ticket.attachments && ticket.attachments.length > 0 && (
+                <div className="ticket-attachments">
+                  <h4 className="attachments-title"><Paperclip size={16} /> Archivos Adjuntos</h4>
+                  <div className="attachments-list">
+                    {ticket.attachments.map((file, i) => (
+                      <a key={i} href={file.url} target="_blank" rel="noopener noreferrer" className="attachment-item">
+                        <span className="attachment-name">{file.filename}</span>
+                        <Download size={14} className="attachment-download-icon" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Comments Section */}
-          <div className="ticket-comments-section">
-            <h3 className="ticket-section-title">
-              <MessageSquare size={18} /> Comentarios ({ticket.comments?.length || 0})
-            </h3>
+          {/* Tabs: Comments & History */}
+          <div className="ticket-tabs">
+            <button 
+              className={`ticket-tab ${activeTab === 'comments' ? 'active' : ''}`}
+              onClick={() => setActiveTab('comments')}
+            >
+              <MessageSquare size={16} /> Comentarios ({ticket.comments?.length || 0})
+            </button>
+            <button 
+              className={`ticket-tab ${activeTab === 'history' ? 'active' : ''}`}
+              onClick={() => setActiveTab('history')}
+            >
+              <History size={16} /> Historial
+            </button>
+          </div>
 
-            <div className="ticket-comments-list">
-              {ticket.comments?.map((c, i) => (
-                <div key={i} className="ticket-comment animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
-                  <div className="comment-avatar">{getInitials(c.user?.name)}</div>
-                  <div className="comment-content">
-                    <div className="comment-header">
-                      <span className="comment-author">{c.user?.name}</span>
-                      <span className="comment-time">{timeAgo(c.createdAt)}</span>
+          <div className="ticket-tab-content">
+            {activeTab === 'comments' && (
+              <div className="ticket-comments-section animate-fade-in">
+                <div className="ticket-comments-list">
+                  {ticket.comments?.map((c, i) => (
+                    <div key={i} className="ticket-comment" style={{ animationDelay: `${i * 50}ms` }}>
+                      <div className="comment-avatar">{getInitials(c.user?.name)}</div>
+                      <div className="comment-content">
+                        <div className="comment-header">
+                          <span className="comment-author">{c.user?.name}</span>
+                          <span className="comment-time">{timeAgo(c.createdAt)}</span>
+                        </div>
+                        <p className="comment-text">{c.text}</p>
+                        
+                        {c.attachments && c.attachments.length > 0 && (
+                          <div className="ticket-attachments" style={{ marginTop: '8px' }}>
+                            <div className="attachments-list">
+                              {c.attachments.map((file, idx) => (
+                                <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer" className="attachment-item">
+                                  <span className="attachment-name">{file.filename}</span>
+                                  <Download size={14} className="attachment-download-icon" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="comment-text">{c.text}</p>
-                  </div>
+                  ))}
+                  {!ticket.comments?.length && (
+                    <div className="empty-state-small">No hay comentarios aún.</div>
+                  )}
                 </div>
-              ))}
-            </div>
 
-            <form className="ticket-comment-form" onSubmit={handleComment}>
-              <textarea
-                className="form-textarea"
-                placeholder="Escribe un comentario..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={3}
-              />
-              <button type="submit" className="btn btn-primary" disabled={sendingComment || !comment.trim()}>
-                {sendingComment ? <div className="spinner"></div> : <Send size={16} />}
-                Enviar
-              </button>
-            </form>
+                <form className="ticket-comment-form" onSubmit={handleComment}>
+                  <div style={{ position: 'relative', flex: 1, width: '100%' }}>
+                    <textarea
+                      className="form-textarea"
+                      placeholder="Escribe un comentario..."
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={3}
+                      style={{ paddingRight: isAdmin && templates.length > 0 ? '40px' : '12px' }}
+                    />
+                    {isAdmin && templates.length > 0 && (
+                      <div style={{ position: 'absolute', right: '8px', top: '8px' }}>
+                        <button 
+                          type="button" 
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => setShowTemplates(!showTemplates)}
+                          title="Insertar Plantilla"
+                          style={{ padding: '4px' }}
+                        >
+                          <MessageSquare size={16} />
+                        </button>
+                        {showTemplates && (
+                          <div className="ticket-dropdown animate-scale-in" style={{ right: 0, left: 'auto', minWidth: '200px', top: '30px' }}>
+                            {templates.map(t => (
+                              <button 
+                                key={t._id} 
+                                type="button"
+                                className="ticket-dropdown-item"
+                                onClick={() => {
+                                  setComment(prev => prev ? `${prev}\n\n${t.text}` : t.text);
+                                  setShowTemplates(false);
+                                }}
+                                style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}
+                              >
+                                <span style={{ fontWeight: 600, fontSize: '13px' }}>{t.title}</span>
+                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}>{t.text}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {commentAttachments.length > 0 && (
+                    <div className="comment-attachments-preview" style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                      {commentAttachments.map((file, i) => (
+                        <div key={i} className="attachment-preview-badge">
+                          <span className="attachment-preview-name">{file.name}</span>
+                          <button type="button" onClick={() => removeCommentAttachment(i)} className="attachment-preview-remove">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px' }}>
+                    <div className="comment-actions-left">
+                      <input 
+                        type="file" 
+                        id="comment-attachments" 
+                        multiple 
+                        onChange={handleCommentFileChange} 
+                        style={{ display: 'none' }} 
+                        accept=".jpg,.jpeg,.png,.pdf,.docx,.txt,.csv"
+                      />
+                      <label htmlFor="comment-attachments" className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', padding: '4px 8px' }}>
+                        <Paperclip size={16} style={{ marginRight: '4px' }}/> Adjuntar
+                      </label>
+                    </div>
+                    <button type="submit" className="btn btn-primary" disabled={sendingComment || (!comment.trim() && commentAttachments.length === 0)}>
+                      {sendingComment ? <div className="spinner"></div> : <Send size={16} />}
+                      Enviar
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {activeTab === 'history' && (
+              <div className="ticket-history-section animate-fade-in">
+                <div className="ticket-history-list">
+                  {ticket.history?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((h, i) => (
+                    <div key={i} className="ticket-history-item">
+                      <div className="history-icon">
+                        <Activity size={14} />
+                      </div>
+                      <div className="history-content">
+                        <p className="history-text">
+                          <strong>{h.user?.name}</strong> {
+                            h.action === 'created' ? 'creó el ticket' :
+                            h.action === 'assigned' ? `asignó el ticket a ${h.newValue}` :
+                            h.action === 'status_change' ? `cambió el estado a ${STATUS_LABELS[h.newValue] || h.newValue}` :
+                            `actualizó ${h.field}: ${h.newValue || '...'}`
+                          }
+                        </p>
+                        <span className="history-time">{formatDateTime(h.createdAt)}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {!ticket.history?.length && (
+                    <div className="empty-state-small">No hay historial disponible.</div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -334,6 +555,57 @@ const TicketDetail = () => {
                 <span className={`badge badge-priority-${ticket.priority}`}>{PRIORITY_LABELS[ticket.priority]}</span>
               </div>
             </div>
+          </div>
+
+          {/* Related Tickets */}
+          <div className="card ticket-info-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 className="card-title" style={{ margin: 0 }}>Tickets Relacionados</h3>
+              {canEdit && (
+                <button className="btn btn-ghost btn-sm" onClick={() => setShowLinkTicket(!showLinkTicket)}>
+                  <Link2 size={14} /> Vincular
+                </button>
+              )}
+            </div>
+            
+            {showLinkTicket && (
+              <form onSubmit={handleLinkTicket} style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  style={{ flex: 1, padding: '4px 8px', fontSize: '13px' }}
+                  placeholder="ID del Ticket..." 
+                  value={linkTicketId}
+                  onChange={e => setLinkTicketId(e.target.value)}
+                />
+                <button type="submit" className="btn btn-primary btn-sm" disabled={linking || !linkTicketId}>
+                  {linking ? <div className="spinner"></div> : 'OK'}
+                </button>
+              </form>
+            )}
+
+            {ticket.relatedTickets && ticket.relatedTickets.length > 0 ? (
+              <div className="ticket-related-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {ticket.relatedTickets.map(related => (
+                  <div key={related._id} className="ticket-related-item" style={{ 
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                    padding: '8px', background: 'var(--bg-body)', borderRadius: '4px', border: '1px solid var(--border-primary)' 
+                  }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }} onClick={() => navigate(`/tickets/${related._id}`)}>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-primary)' }}>{related.ticketNumber}</span>
+                      <span style={{ fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }}>{related.title}</span>
+                    </div>
+                    {canEdit && (
+                      <button className="btn btn-ghost" style={{ padding: '4px', color: 'var(--status-rejected)' }} onClick={() => handleUnlinkTicket(related._id)}>
+                        <Unlink size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state-small" style={{ padding: '16px' }}>Ninguno</div>
+            )}
           </div>
 
           {/* Actions */}
