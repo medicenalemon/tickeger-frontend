@@ -19,6 +19,11 @@ export const CATEGORY_LABELS = {
   soporte_tecnico: 'Soporte Técnico',
   solicitud_cambio: 'Solicitud de Cambio',
   bug: 'Bug / Error',
+  accesos_permisos: 'Accesos / Permisos',
+  consulta: 'Consulta / Info',
+  hardware: 'Hardware',
+  redes: 'Redes / Infra',
+  mejora: 'Sugerencia / Mejora',
   otro: 'Otro',
 };
 

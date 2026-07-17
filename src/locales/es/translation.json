@@ -200,7 +200,12 @@
     "soporte_tecnico": "Soporte Técnico",
     "solicitud_cambio": "Solicitud de Cambio",
     "bug": "Bug / Error",
-    "otro": "Otro"
+    "otro": "Otro",
+    "accesos_permisos": "Accesos / Permisos",
+    "consulta": "Consulta / Info",
+    "hardware": "Hardware",
+    "redes": "Redes / Infra",
+    "mejora": "Sugerencia / Mejora"
   },
   "time": {
     "seconds": "hace unos segundos",

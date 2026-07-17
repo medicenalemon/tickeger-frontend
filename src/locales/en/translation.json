@@ -200,7 +200,12 @@
     "soporte_tecnico": "Technical Support",
     "solicitud_cambio": "Change Request",
     "bug": "Bug / Error",
-    "otro": "Other"
+    "otro": "Other",
+    "accesos_permisos": "Access / Permissions",
+    "consulta": "Inquiry / Info",
+    "hardware": "Hardware",
+    "redes": "Networking / Infra",
+    "mejora": "Suggestion / Enhancement"
   },
   "time": {
     "seconds": "a few seconds ago",
