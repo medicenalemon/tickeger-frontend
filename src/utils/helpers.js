@@ -22,9 +22,12 @@ export const CATEGORY_LABELS = {
   otro: 'Otro',
 };
 
+import i18n from '../i18n';
+
 export const formatDate = (dateString) => {
   if (!dateString) return '—';
-  return new Date(dateString).toLocaleDateString('es-AR', {
+  const locale = i18n.language?.startsWith('en') ? 'en-US' : 'es-AR';
+  return new Date(dateString).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -33,7 +36,8 @@ export const formatDate = (dateString) => {
 
 export const formatDateTime = (dateString) => {
   if (!dateString) return '—';
-  return new Date(dateString).toLocaleDateString('es-AR', {
+  const locale = i18n.language?.startsWith('en') ? 'en-US' : 'es-AR';
+  return new Date(dateString).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -48,15 +52,17 @@ export const timeAgo = (dateString) => {
   const date = new Date(dateString);
   const seconds = Math.floor((now - date) / 1000);
   
-  if (seconds < 60) return 'hace unos segundos';
+  if (seconds < 60) return i18n.t('time.seconds');
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `hace ${minutes} min`;
+  if (minutes < 60) return i18n.t('time.minutes', { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `hace ${hours}h`;
+  if (hours < 24) return i18n.t('time.hours', { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 30) return `hace ${days}d`;
+  if (days < 30) return i18n.t('time.days', { count: days });
   const months = Math.floor(days / 30);
-  if (months < 12) return `hace ${months} mes${months > 1 ? 'es' : ''}`;
+  if (months < 12) {
+    return months === 1 ? i18n.t('time.months', { count: months }) : i18n.t('time.months_plural', { count: months });
+  }
   return formatDate(dateString);
 };
 

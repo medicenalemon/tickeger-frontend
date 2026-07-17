@@ -8,6 +8,7 @@ import {
   Pencil, X, Save, Trash2, History, Activity, Paperclip, Download, Link2, Unlink
 } from 'lucide-react';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS, formatDateTime, timeAgo, getInitials } from '../utils/helpers';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import './TicketDetail.css';
 
@@ -15,6 +16,7 @@ const TicketDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
+  const { t } = useTranslation();
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState('');
@@ -60,7 +62,7 @@ const TicketDetail = () => {
       const { data } = await ticketService.getById(id);
       setTicket(data);
     } catch (error) {
-      toast.error('Error al cargar ticket');
+      toast.error(t('ticketDetail.errorLoading'));
       navigate('/tickets');
     } finally {
       setLoading(false);
@@ -86,9 +88,9 @@ const TicketDetail = () => {
       const { data } = await ticketService.assign(id, { assignedTo: userId });
       setTicket(data);
       setShowAssign(false);
-      toast.success('Ticket asignado correctamente');
+      toast.success(t('ticketDetail.assignedSuccess'));
     } catch (error) {
-      toast.error('Error al asignar ticket');
+      toast.error(t('ticketDetail.assignedError'));
     }
   };
 
@@ -97,9 +99,9 @@ const TicketDetail = () => {
       const { data } = await ticketService.changeStatus(id, { status });
       setTicket(data);
       setShowStatusChange(false);
-      toast.success(`Estado cambiado a: ${STATUS_LABELS[status]}`);
+      toast.success(t('ticketDetail.statusChanged', { status: t(`status.${status}`) }));
     } catch (error) {
-      toast.error('Error al cambiar estado');
+      toast.error(t('ticketDetail.statusChangeError'));
     }
   };
 
@@ -120,9 +122,9 @@ const TicketDetail = () => {
       setTicket(data);
       setComment('');
       setCommentAttachments([]);
-      toast.success('Comentario agregado');
+      toast.success(t('ticketDetail.commentAdded'));
     } catch (error) {
-      toast.error('Error al agregar comentario');
+      toast.error(t('ticketDetail.commentAddError'));
     } finally {
       setSendingComment(false);
     }
@@ -133,14 +135,14 @@ const TicketDetail = () => {
     
     const validFiles = files.filter(file => {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(`El archivo ${file.name} supera los 5MB`);
+        toast.error(t('ticketDetail.fileTooLarge', { file: file.name }));
         return false;
       }
       return true;
     });
 
     if (commentAttachments.length + validFiles.length > 5) {
-      toast.error('Máximo 5 archivos por comentario');
+      toast.error(t('ticketDetail.maxFiles'));
       return;
     }
 
@@ -175,7 +177,7 @@ const TicketDetail = () => {
 
   const handleSaveEdit = async () => {
     if (!editForm.title.trim() || !editForm.description.trim()) {
-      toast.error('El título y la descripción son obligatorios');
+      toast.error(t('ticketDetail.titleDescRequired'));
       return;
     }
     setSaving(true);
@@ -183,9 +185,9 @@ const TicketDetail = () => {
       const { data } = await ticketService.update(id, editForm);
       setTicket(data);
       setIsEditing(false);
-      toast.success('Ticket actualizado correctamente');
+      toast.success(t('ticketDetail.updateSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al actualizar ticket');
+      toast.error(error.response?.data?.message || t('ticketDetail.updateError'));
     } finally {
       setSaving(false);
     }
@@ -198,10 +200,10 @@ const TicketDetail = () => {
     setDeleting(true);
     try {
       await ticketService.delete(id);
-      toast.success('Ticket eliminado correctamente');
+      toast.success(t('ticketDetail.deleteSuccess'));
       navigate('/tickets');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al eliminar ticket');
+      toast.error(error.response?.data?.message || t('ticketDetail.deleteError'));
       setDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -216,9 +218,9 @@ const TicketDetail = () => {
       setTicket(data);
       setShowLinkTicket(false);
       setLinkTicketId('');
-      toast.success('Ticket vinculado correctamente');
+      toast.success(t('ticketDetail.linkSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al vincular ticket');
+      toast.error(error.response?.data?.message || t('ticketDetail.linkError'));
     } finally {
       setLinking(false);
     }
@@ -228,16 +230,16 @@ const TicketDetail = () => {
     try {
       const { data } = await ticketService.unlinkRelated(ticket._id, relatedId);
       setTicket(data);
-      toast.success('Ticket desvinculado');
+      toast.success(t('ticketDetail.unlinkSuccess'));
     } catch (error) {
-      toast.error('Error al desvincular ticket');
+      toast.error(t('ticketDetail.unlinkError'));
     }
   };
 
   if (loading) {
     return (
       <div className="page-container">
-        <div className="loading-screen"><div className="spinner spinner-lg"></div><p>Cargando ticket...</p></div>
+        <div className="loading-screen"><div className="spinner spinner-lg"></div><p>{t('ticketDetail.loading')}</p></div>
       </div>
     );
   }
@@ -247,7 +249,7 @@ const TicketDetail = () => {
   return (
     <div className="page-container">
       <button className="btn btn-ghost btn-sm" onClick={() => navigate('/tickets')} style={{ marginBottom: 16 }}>
-        <ArrowLeft size={16} /> Volver a Tickets
+        <ArrowLeft size={16} /> {t('ticketDetail.back')}
       </button>
 
       <div className="ticket-detail-layout animate-fade-in">
@@ -259,7 +261,7 @@ const TicketDetail = () => {
             {isEditing ? (
               <div className="ticket-edit-section animate-fade-in">
                 <div className="form-group">
-                  <label className="form-label">Título *</label>
+                  <label className="form-label">{t('ticketDetail.titleLabel')}</label>
                   <input
                     type="text"
                     name="title"
@@ -267,7 +269,7 @@ const TicketDetail = () => {
                     value={editForm.title}
                     onChange={handleEditChange}
                     maxLength={200}
-                    placeholder="Título del ticket"
+                    placeholder={t('ticketDetail.titlePlaceholder')}
                     autoFocus
                   />
                 </div>
@@ -278,10 +280,10 @@ const TicketDetail = () => {
 
             {!isEditing && (
               <div className="ticket-detail-badges">
-                <span className={`badge badge-status-${ticket.status}`}>{STATUS_LABELS[ticket.status]}</span>
-                <span className={`badge badge-priority-${ticket.priority}`}>{PRIORITY_LABELS[ticket.priority]}</span>
+                <span className={`badge badge-status-${ticket.status}`}>{t(`status.${ticket.status}`)}</span>
+                <span className={`badge badge-priority-${ticket.priority}`}>{t(`priority.${ticket.priority}`)}</span>
                 <span className="badge" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
-                  {CATEGORY_LABELS[ticket.category]}
+                  {t(`category.${ticket.category}`)}
                 </span>
               </div>
             )}
@@ -290,7 +292,7 @@ const TicketDetail = () => {
           {isEditing ? (
             <div className="ticket-edit-section animate-fade-in">
               <div className="form-group">
-                <label className="form-label">Descripción *</label>
+                <label className="form-label">{t('ticketDetail.descLabel')}</label>
                 <textarea
                   name="description"
                   className="form-textarea"
@@ -298,24 +300,26 @@ const TicketDetail = () => {
                   onChange={handleEditChange}
                   rows={6}
                   maxLength={5000}
-                  placeholder="Descripción del ticket"
+                  placeholder={t('ticketDetail.descPlaceholder')}
                 />
               </div>
 
               <div className="ticket-edit-row">
                 <div className="form-group">
-                  <label className="form-label">Prioridad</label>
+                  <label className="form-label">{t('ticketDetail.priority')}</label>
                   <select name="priority" className="form-select" value={editForm.priority} onChange={handleEditChange}>
-                    {Object.entries(PRIORITY_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
+                    <option value="">{t('ticketDetail.selectPriority')}</option>
+                    {Object.keys(PRIORITY_LABELS).map((k) => (
+                      <option key={k} value={k}>{t(`priority.${k}`)}</option>
                     ))}
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Categoría</label>
+                  <label className="form-label">{t('ticketDetail.category')}</label>
                   <select name="category" className="form-select" value={editForm.category} onChange={handleEditChange}>
-                    {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
+                    <option value="">{t('ticketDetail.selectCategory')}</option>
+                    {Object.keys(CATEGORY_LABELS).map((k) => (
+                      <option key={k} value={k}>{t(`category.${k}`)}</option>
                     ))}
                   </select>
                 </div>
@@ -323,11 +327,11 @@ const TicketDetail = () => {
 
               <div className="ticket-edit-actions">
                 <button type="button" className="btn btn-ghost" onClick={cancelEditing} disabled={saving}>
-                  <X size={16} /> Cancelar
+                  <X size={16} /> {t('ticketDetail.cancel')}
                 </button>
                 <button type="button" className="btn btn-primary" onClick={handleSaveEdit} disabled={saving}>
                   {saving ? <div className="spinner"></div> : <Save size={16} />}
-                  {saving ? 'Guardando...' : 'Guardar Cambios'}
+                  {saving ? t('ticketDetail.saving') : t('ticketDetail.saveChanges')}
                 </button>
               </div>
             </div>
@@ -337,7 +341,7 @@ const TicketDetail = () => {
               
               {ticket.attachments && ticket.attachments.length > 0 && (
                 <div className="ticket-attachments">
-                  <h4 className="attachments-title"><Paperclip size={16} /> Archivos Adjuntos</h4>
+                  <h4 className="attachments-title"><Paperclip size={16} /> {t('ticketDetail.attachments')}</h4>
                   <div className="attachments-list">
                     {ticket.attachments.map((file, i) => (
                       <a key={i} href={file.url} target="_blank" rel="noopener noreferrer" className="attachment-item">
@@ -357,13 +361,13 @@ const TicketDetail = () => {
               className={`ticket-tab ${activeTab === 'comments' ? 'active' : ''}`}
               onClick={() => setActiveTab('comments')}
             >
-              <MessageSquare size={16} /> Comentarios ({ticket.comments?.length || 0})
+              <MessageSquare size={16} /> {t('ticketDetail.commentsTab', { count: ticket.comments?.length || 0 })}
             </button>
             <button 
               className={`ticket-tab ${activeTab === 'history' ? 'active' : ''}`}
               onClick={() => setActiveTab('history')}
             >
-              <History size={16} /> Historial
+              <History size={16} /> {t('ticketDetail.historyTab')}
             </button>
           </div>
 
@@ -397,7 +401,7 @@ const TicketDetail = () => {
                     </div>
                   ))}
                   {!ticket.comments?.length && (
-                    <div className="empty-state-small">No hay comentarios aún.</div>
+                    <div className="empty-state-small">{t('ticketDetail.noComments')}</div>
                   )}
                 </div>
 
@@ -405,7 +409,7 @@ const TicketDetail = () => {
                   <div style={{ position: 'relative', flex: 1, width: '100%' }}>
                     <textarea
                       className="form-textarea"
-                      placeholder="Escribe un comentario..."
+                      placeholder={t('ticketDetail.writeComment')}
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       rows={3}
@@ -417,7 +421,7 @@ const TicketDetail = () => {
                           type="button" 
                           className="btn btn-ghost btn-sm"
                           onClick={() => setShowTemplates(!showTemplates)}
-                          title="Insertar Plantilla"
+                          title={t('ticketDetail.insertTemplate')}
                           style={{ padding: '4px' }}
                         >
                           <MessageSquare size={16} />
@@ -469,12 +473,12 @@ const TicketDetail = () => {
                         accept=".jpg,.jpeg,.png,.pdf,.docx,.txt,.csv"
                       />
                       <label htmlFor="comment-attachments" className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', padding: '4px 8px' }}>
-                        <Paperclip size={16} style={{ marginRight: '4px' }}/> Adjuntar
+                        <Paperclip size={16} style={{ marginRight: '4px' }}/> {t('ticketDetail.attach')}
                       </label>
                     </div>
                     <button type="submit" className="btn btn-primary" disabled={sendingComment || (!comment.trim() && commentAttachments.length === 0)}>
                       {sendingComment ? <div className="spinner"></div> : <Send size={16} />}
-                      Enviar
+                      {t('ticketDetail.send')}
                     </button>
                   </div>
                 </form>
@@ -492,10 +496,10 @@ const TicketDetail = () => {
                       <div className="history-content">
                         <p className="history-text">
                           <strong>{h.user?.name}</strong> {
-                            h.action === 'created' ? 'creó el ticket' :
-                            h.action === 'assigned' ? `asignó el ticket a ${h.newValue}` :
-                            h.action === 'status_change' ? `cambió el estado a ${STATUS_LABELS[h.newValue] || h.newValue}` :
-                            `actualizó ${h.field}: ${h.newValue || '...'}`
+                            h.action === 'created' ? t('ticketDetail.historyCreated') :
+                            h.action === 'assigned' ? t('ticketDetail.historyAssigned', { newValue: h.newValue }) :
+                            h.action === 'status_change' ? t('ticketDetail.historyStatus', { status: t(`status.${h.newValue}`) || h.newValue }) :
+                            t('ticketDetail.historyUpdated', { field: h.field, newValue: h.newValue || '...' })
                           }
                         </p>
                         <span className="history-time">{formatDateTime(h.createdAt)}</span>
@@ -503,7 +507,7 @@ const TicketDetail = () => {
                     </div>
                   ))}
                   {!ticket.history?.length && (
-                    <div className="empty-state-small">No hay historial disponible.</div>
+                    <div className="empty-state-small">{t('ticketDetail.noHistory')}</div>
                   )}
                 </div>
               </div>
@@ -515,44 +519,44 @@ const TicketDetail = () => {
         <div className="ticket-detail-sidebar">
           {/* Info Card */}
           <div className="card ticket-info-card">
-            <h3 className="card-title" style={{ marginBottom: 16 }}>Información</h3>
+            <h3 className="card-title" style={{ marginBottom: 16 }}>{t('ticketDetail.info')}</h3>
             <div className="ticket-info-list">
               <div className="ticket-info-item">
                 <UserIcon size={14} />
-                <span className="ticket-info-label">Creado por</span>
+                <span className="ticket-info-label">{t('ticketDetail.createdBy')}</span>
                 <span className="ticket-info-value">{ticket.createdBy?.name}</span>
               </div>
               <div className="ticket-info-item">
                 <UserCheck size={14} />
-                <span className="ticket-info-label">Asignado a</span>
-                <span className="ticket-info-value">{ticket.assignedTo?.name || 'Sin asignar'}</span>
+                <span className="ticket-info-label">{t('ticketDetail.assignedTo')}</span>
+                <span className="ticket-info-value">{ticket.assignedTo?.name || t('ticketDetail.unassigned')}</span>
               </div>
               <div className="ticket-info-item">
                 <Calendar size={14} />
-                <span className="ticket-info-label">Creado</span>
+                <span className="ticket-info-label">{t('ticketDetail.createdAt')}</span>
                 <span className="ticket-info-value">{formatDateTime(ticket.createdAt)}</span>
               </div>
               <div className="ticket-info-item">
                 <Clock size={14} />
-                <span className="ticket-info-label">Actualizado</span>
+                <span className="ticket-info-label">{t('ticketDetail.updatedAt')}</span>
                 <span className="ticket-info-value">{formatDateTime(ticket.updatedAt)}</span>
               </div>
               {ticket.closedAt && (
                 <div className="ticket-info-item">
                   <Tag size={14} />
-                  <span className="ticket-info-label">Cerrado</span>
+                  <span className="ticket-info-label">{t('ticketDetail.closedAt')}</span>
                   <span className="ticket-info-value">{formatDateTime(ticket.closedAt)}</span>
                 </div>
               )}
               <div className="ticket-info-item">
                 <Layers size={14} />
-                <span className="ticket-info-label">Categoría</span>
-                <span className="ticket-info-value">{CATEGORY_LABELS[ticket.category]}</span>
+                <span className="ticket-info-label">{t('ticketDetail.category')}</span>
+                <span className="ticket-info-value">{t(`category.${ticket.category}`)}</span>
               </div>
               <div className="ticket-info-item">
                 <AlertTriangle size={14} />
-                <span className="ticket-info-label">Prioridad</span>
-                <span className={`badge badge-priority-${ticket.priority}`}>{PRIORITY_LABELS[ticket.priority]}</span>
+                <span className="ticket-info-label">{t('ticketDetail.priority')}</span>
+                <span className={`badge badge-priority-${ticket.priority}`}>{t(`priority.${ticket.priority}`)}</span>
               </div>
             </div>
           </div>
@@ -560,10 +564,10 @@ const TicketDetail = () => {
           {/* Related Tickets */}
           <div className="card ticket-info-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 className="card-title" style={{ margin: 0 }}>Tickets Relacionados</h3>
+              <h3 className="card-title" style={{ margin: 0 }}>{t('ticketDetail.relatedTickets')}</h3>
               {canEdit && (
                 <button className="btn btn-ghost btn-sm" onClick={() => setShowLinkTicket(!showLinkTicket)}>
-                  <Link2 size={14} /> Vincular
+                  <Link2 size={14} /> {t('ticketDetail.link')}
                 </button>
               )}
             </div>
@@ -574,7 +578,7 @@ const TicketDetail = () => {
                   type="text" 
                   className="form-input" 
                   style={{ flex: 1, padding: '4px 8px', fontSize: '13px' }}
-                  placeholder="ID del Ticket..." 
+                  placeholder={t('ticketDetail.ticketId')}
                   value={linkTicketId}
                   onChange={e => setLinkTicketId(e.target.value)}
                 />
@@ -604,33 +608,33 @@ const TicketDetail = () => {
                 ))}
               </div>
             ) : (
-              <div className="empty-state-small" style={{ padding: '16px' }}>Ninguno</div>
+              <div className="empty-state-small" style={{ padding: '16px' }}>{t('ticketDetail.none')}</div>
             )}
           </div>
 
           {/* Actions */}
           {(isAdmin || ticket.assignedTo?._id === user?._id || ticket.createdBy?._id === user?._id) && (
             <div className="card ticket-actions-card">
-              <h3 className="card-title" style={{ marginBottom: 16 }}>Acciones</h3>
+              <h3 className="card-title" style={{ marginBottom: 16 }}>{t('ticketDetail.actions')}</h3>
               <div className="ticket-actions-list">
                 {/* Edit Button */}
                 {canEdit && !isEditing && (
                   <button className="btn btn-edit" style={{ width: '100%' }} onClick={startEditing}>
-                    <Pencil size={16} /> Editar Ticket
+                    <Pencil size={16} /> {t('ticketDetail.editTicket')}
                   </button>
                 )}
 
                 <div style={{ position: 'relative' }}>
                   <button className="btn btn-secondary" style={{ width: '100%' }}
                     onClick={() => { setShowStatusChange(!showStatusChange); setShowAssign(false); }}>
-                    Cambiar Estado
+                    {t('ticketDetail.changeStatus')}
                   </button>
                   {showStatusChange && (
                     <div className="ticket-dropdown animate-scale-in">
                       {Object.entries(STATUS_LABELS).map(([k, v]) => (
                         <button key={k} className={`ticket-dropdown-item ${ticket.status === k ? 'active' : ''}`}
                           onClick={() => handleStatusChange(k)} disabled={ticket.status === k}>
-                          <span className={`badge badge-status-${k}`}>{v}</span>
+                          <span className={`badge badge-status-${k}`}>{t(`status.${k}`)}</span>
                         </button>
                       ))}
                     </div>
@@ -641,12 +645,12 @@ const TicketDetail = () => {
                   <div style={{ position: 'relative' }}>
                     <button className="btn btn-secondary" style={{ width: '100%' }}
                       onClick={() => { setShowAssign(!showAssign); setShowStatusChange(false); }}>
-                      <UserCheck size={16} /> Asignar
+                      <UserCheck size={16} /> {t('ticketDetail.assign')}
                     </button>
                     {showAssign && (
                       <div className="ticket-dropdown animate-scale-in">
                         <button className="ticket-dropdown-item" onClick={() => handleAssign(null)}>
-                          Sin asignar
+                          {t('ticketDetail.unassigned')}
                         </button>
                         {users.map(u => (
                           <button key={u._id} className={`ticket-dropdown-item ${ticket.assignedTo?._id === u._id ? 'active' : ''}`}
@@ -663,7 +667,7 @@ const TicketDetail = () => {
                 {isAdmin && (
                   <button className="btn btn-delete" style={{ width: '100%' }}
                     onClick={() => setShowDeleteConfirm(true)}>
-                    <Trash2 size={16} /> Eliminar Ticket
+                    <Trash2 size={16} /> {t('ticketDetail.deleteTicket')}
                   </button>
                 )}
               </div>
@@ -679,18 +683,16 @@ const TicketDetail = () => {
             <div className="modal-delete-icon">
               <Trash2 size={32} />
             </div>
-            <h3 className="modal-delete-title">¿Eliminar este ticket?</h3>
-            <p className="modal-delete-text">
-              Estás a punto de eliminar el ticket <strong>{ticket.ticketNumber}</strong>: "{ticket.title}". 
-              Esta acción no se puede deshacer y se eliminarán todos los comentarios y notificaciones asociadas.
+            <h3 className="modal-delete-title">{t('ticketDetail.deleteConfirmTitle')}</h3>
+            <p className="modal-delete-text" dangerouslySetInnerHTML={{ __html: t('ticketDetail.deleteConfirmText', { number: ticket.ticketNumber, title: ticket.title }) }}>
             </p>
             <div className="modal-delete-actions">
               <button className="btn btn-secondary" onClick={() => setShowDeleteConfirm(false)} disabled={deleting}>
-                Cancelar
+                {t('ticketDetail.cancel')}
               </button>
               <button className="btn btn-delete" onClick={handleDelete} disabled={deleting}>
                 {deleting ? <div className="spinner"></div> : <Trash2 size={16} />}
-                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+                {deleting ? t('ticketDetail.deleting') : t('ticketDetail.yesDelete')}
               </button>
             </div>
           </div>

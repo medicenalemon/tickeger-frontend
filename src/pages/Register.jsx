@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, Eye, EyeOff, Mail, Lock, User, Shield } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import './Auth.css';
 
@@ -14,29 +15,30 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email || !password || !confirmPassword) {
-      toast.error('Complete todos los campos');
+      toast.error(t('auth.fillAllFields'));
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('auth.passwordsNotMatch'));
       return;
     }
     if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+      toast.error(t('auth.passwordMinLength'));
       return;
     }
     setLoading(true);
     try {
       await register(name, email, password, role);
-      toast.success('¡Cuenta creada exitosamente!');
+      toast.success(t('auth.registerSuccess'));
       navigate('/');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al registrarse');
+      toast.error(error.response?.data?.message || t('auth.registerError'));
     } finally {
       setLoading(false);
     }
@@ -56,19 +58,19 @@ const Register = () => {
             <img src="/logo-red.png" alt="Tickeger" className="auth-logo-img" />
             <span className="auth-brand-text">TICKEGER</span>
           </div>
-          <h1 className="auth-title">Crear Cuenta</h1>
-          <p className="auth-subtitle">Regístrate para empezar a gestionar tickets</p>
+          <h1 className="auth-title">{t('auth.registerTitle')}</h1>
+          <p className="auth-subtitle">{t('auth.registerSubtitle')}</p>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Nombre completo</label>
+            <label className="form-label">{t('auth.fullName')}</label>
             <div className="auth-input-wrapper">
               <User size={18} className="auth-input-icon" />
               <input
                 type="text"
                 className="form-input auth-input"
-                placeholder="Juan Pérez"
+                placeholder={t('auth.fullNamePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -76,13 +78,13 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Email</label>
+            <label className="form-label">{t('auth.email')}</label>
             <div className="auth-input-wrapper">
               <Mail size={18} className="auth-input-icon" />
               <input
                 type="email"
                 className="form-input auth-input"
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -90,13 +92,13 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Contraseña</label>
+            <label className="form-label">{t('auth.password')}</label>
             <div className="auth-input-wrapper">
               <Lock size={18} className="auth-input-icon" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input auth-input"
-                placeholder="Mínimo 6 caracteres"
+                placeholder={t('auth.passwordMinPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -111,13 +113,13 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Confirmar contraseña</label>
+            <label className="form-label">{t('auth.confirmPassword')}</label>
             <div className="auth-input-wrapper">
               <Lock size={18} className="auth-input-icon" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input auth-input"
-                placeholder="Repite la contraseña"
+                placeholder={t('auth.passwordRepeatPlaceholder')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -125,7 +127,7 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Rol</label>
+            <label className="form-label">{t('auth.role')}</label>
             <div className="auth-input-wrapper">
               <Shield size={18} className="auth-input-icon" />
               <select
@@ -133,8 +135,8 @@ const Register = () => {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option value="user">Usuario</option>
-                <option value="admin">Administrador</option>
+                <option value="user">{t('auth.roleUser')}</option>
+                <option value="admin">{t('auth.roleAdmin')}</option>
               </select>
             </div>
           </div>
@@ -145,12 +147,12 @@ const Register = () => {
             disabled={loading}
           >
             {loading ? <div className="spinner"></div> : <UserPlus size={20} />}
-            {loading ? 'Creando cuenta...' : 'Registrarse'}
+            {loading ? t('auth.registering') : t('auth.registerButton')}
           </button>
         </form>
 
         <div className="auth-footer">
-          <p>¿Ya tienes cuenta? <Link to="/login" className="auth-link">Inicia sesión</Link></p>
+          <p>{t('auth.hasAccount')} <Link to="/login" className="auth-link">{t('auth.loginLink')}</Link></p>
         </div>
       </div>
     </div>

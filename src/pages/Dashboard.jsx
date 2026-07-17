@@ -7,11 +7,13 @@ import {
   ArrowUpRight, BarChart3, Activity
 } from 'lucide-react';
 import { STATUS_LABELS, PRIORITY_LABELS, formatDate } from '../utils/helpers';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ const Dashboard = () => {
         });
       }
     } catch (error) {
-      toast.error('Error al cargar estadísticas');
+      toast.error(t('dashboard.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -67,7 +69,7 @@ const Dashboard = () => {
       <div className="page-container">
         <div className="loading-screen">
           <div className="spinner spinner-lg"></div>
-          <p>Cargando dashboard...</p>
+          <p>{t('dashboard.loading')}</p>
         </div>
       </div>
     );
@@ -75,28 +77,28 @@ const Dashboard = () => {
 
   const summaryCards = [
     {
-      label: isAdmin ? 'Total Tickets' : 'Mis Tickets',
+      label: isAdmin ? t('dashboard.totalTickets') : t('dashboard.myTickets'),
       value: stats?.total || 0,
       icon: Ticket,
       color: 'var(--color-primary)',
       bg: 'var(--color-primary-lighter)',
     },
     {
-      label: 'Abiertos',
+      label: t('dashboard.open'),
       value: getStatusCount('abierto'),
       icon: Clock,
       color: 'var(--status-open)',
       bg: 'var(--status-open-bg)',
     },
     {
-      label: 'En Progreso',
+      label: t('dashboard.inProgress'),
       value: getStatusCount('en_progreso'),
       icon: Activity,
       color: 'var(--status-in-progress)',
       bg: 'var(--status-in-progress-bg)',
     },
     {
-      label: 'Resueltos',
+      label: t('dashboard.resolved'),
       value: getStatusCount('resuelto'),
       icon: CheckCircle2,
       color: 'var(--status-resolved)',
@@ -108,9 +110,9 @@ const Dashboard = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Dashboard</h1>
+          <h1 className="page-title">{t('dashboard.title')}</h1>
           <p className="page-subtitle">
-            Bienvenido, {user?.name} — {isAdmin ? 'Vista de Administrador' : 'Mis Estadísticas'}
+            {isAdmin ? t('dashboard.welcomeAdmin', { name: user?.name }) : t('dashboard.welcomeUser', { name: user?.name })}
           </p>
         </div>
       </div>
@@ -140,7 +142,7 @@ const Dashboard = () => {
           <div className="card-header">
             <h3 className="card-title">
               <BarChart3 size={18} style={{ marginRight: 8, color: 'var(--color-primary)' }} />
-              Distribución por Estado
+              {t('dashboard.statusDistribution')}
             </h3>
           </div>
           <div className="status-bars">
@@ -150,7 +152,7 @@ const Dashboard = () => {
               return (
                 <div key={key} className="status-bar-item">
                   <div className="status-bar-header">
-                    <span className={`badge badge-status-${key}`}>{label}</span>
+                    <span className={`badge badge-status-${key}`}>{t(`status.${key}`)}</span>
                     <span className="status-bar-count">{count}</span>
                   </div>
                   <div className="status-bar-track">
@@ -170,7 +172,7 @@ const Dashboard = () => {
           <div className="card-header">
             <h3 className="card-title">
               <AlertTriangle size={18} style={{ marginRight: 8, color: 'var(--color-primary)' }} />
-              Por Prioridad
+              {t('dashboard.byPriority')}
             </h3>
           </div>
           <div className="priority-grid">
@@ -180,7 +182,7 @@ const Dashboard = () => {
                 <div key={key} className="priority-item">
                   <div className={`priority-item-dot priority-dot-${key}`}></div>
                   <div className="priority-item-info">
-                    <span className="priority-item-label">{label}</span>
+                    <span className="priority-item-label">{t(`priority.${key}`)}</span>
                     <span className="priority-item-count">{count}</span>
                   </div>
                 </div>
@@ -194,10 +196,10 @@ const Dashboard = () => {
           <div className="card-header">
             <h3 className="card-title">
               <TrendingUp size={18} style={{ marginRight: 8, color: 'var(--color-primary)' }} />
-              Tickets Recientes
+              {t('dashboard.recentTickets')}
             </h3>
             <button className="btn btn-ghost btn-sm" onClick={() => navigate('/tickets')}>
-              Ver todos <ArrowUpRight size={14} />
+              {t('dashboard.viewAll')} <ArrowUpRight size={14} />
             </button>
           </div>
           <div className="recent-tickets-list">
@@ -211,19 +213,19 @@ const Dashboard = () => {
                   <div className="recent-ticket-header">
                     <span className="recent-ticket-number">{ticket.ticketNumber}</span>
                     <span className={`badge badge-status-${ticket.status}`}>
-                      {STATUS_LABELS[ticket.status]}
+                      {t(`status.${ticket.status}`)}
                     </span>
                   </div>
                   <p className="recent-ticket-title">{ticket.title}</p>
                   <div className="recent-ticket-meta">
-                    <span>{ticket.createdBy?.name || 'Usuario'}</span>
+                    <span>{ticket.createdBy?.name || t('dashboard.user')}</span>
                     <span>{formatDate(ticket.createdAt)}</span>
                   </div>
                 </div>
               ))
             ) : (
               <div className="empty-state">
-                <p>No hay tickets recientes</p>
+                <p>{t('dashboard.noRecentTickets')}</p>
               </div>
             )}
           </div>

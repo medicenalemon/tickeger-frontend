@@ -4,12 +4,16 @@ const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
-// Add auth token to requests
+// Add auth token and language header to requests
 API.interceptors.request.use((config) => {
   const user = JSON.parse(localStorage.getItem('tickeger_user') || 'null');
   if (user?.token) {
     config.headers.Authorization = `Bearer ${user.token}`;
   }
+  
+  const language = localStorage.getItem('i18nextLng') || 'es';
+  config.headers['Accept-Language'] = language;
+  
   return config;
 });
 

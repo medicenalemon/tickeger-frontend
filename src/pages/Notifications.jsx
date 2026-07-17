@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { notificationService } from '../services/api';
 import { useNotifications } from '../context/NotificationContext';
 import { Bell, CheckCircle, MessageSquare, Tag, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { STATUS_LABELS } from '../utils/helpers';
 import './Notifications.css';
 
 const Notifications = () => {
@@ -11,6 +13,7 @@ const Notifications = () => {
   const [error, setError] = useState('');
   const { decrementUnread, setUnreadCount } = useNotifications();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     fetchNotifications();
@@ -24,7 +27,7 @@ const Notifications = () => {
       const unread = data.filter(n => !n.isRead).length;
       setUnreadCount(unread);
     } catch (err) {
-      setError('Error al cargar las notificaciones');
+      setError(t('notifications.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -62,32 +65,64 @@ const Notifications = () => {
     }
   };
 
-  const formatNotificationMessage = (message) => {
+  const formatNotificationMessage = (message, type) => {
     if (!message) return '';
+    
+    // 1. Status change pattern: El estado del ticket "{title}" cambió a {status}
+    if (type === 'status_change') {
+      const match = message.match(/^El estado del ticket "(.*?)" cambió a (.*)$/);
+      if (match) {
+        const title = match[1];
+        let status = match[2];
+        Object.keys(STATUS_LABELS).forEach((key) => {
+          if (status.includes(STATUS_LABELS[key]) || status.includes(key)) {
+            status = `"${t(`status.${key}`)}"`;
+          }
+        });
+        return t('notifications.msgStatusChange', { title, status });
+      }
+    }
+
+    // 2. Assignment patterns
+    if (type === 'assignment') {
+      const match1 = message.match(/^Responsable cambiado de (.*?) a (.*?) en el ticket "(.*)"$/);
+      if (match1) {
+        return t('notifications.msgAssignChange', { oldUser: match1[1], newUser: match1[2], title: match1[3] });
+      }
+      const match2 = message.match(/^El ticket "(.*?)" ha sido asignado a (.*)$/);
+      if (match2) {
+        return t('notifications.msgAssigned', { title: match2[1], user: match2[2] });
+      }
+    }
+
+    // 3. Comment pattern: {user} comentó: "{text}"
+    if (type === 'new_comment') {
+      const match = message.match(/^(.*?) comentó: "(.*)"$/);
+      if (match) {
+        return t('notifications.msgComment', { user: match[1], text: match[2] });
+      }
+    }
+
+    // Fallback if patterns don't match: translate just the status labels if they exist
     let formattedMsg = message;
     
-    // Status labels object map
-    const STATUS_LABELS = {
-      abierto: 'Abierto',
-      en_progreso: 'En Progreso',
-      en_revision: 'En Revisión',
-      resuelto: 'Resuelto',
-      cerrado: 'Cerrado',
-      rechazado: 'Rechazado'
-    };
-
-    // Replace any occurrence of the raw status string with the formatted label
-    Object.entries(STATUS_LABELS).forEach(([key, label]) => {
-      const regex = new RegExp(`\\b${key}\\b`, 'g');
-      formattedMsg = formattedMsg.replace(regex, `"${label}"`);
+    Object.keys(STATUS_LABELS).forEach((key) => {
+      const regex = new RegExp(`\\b${STATUS_LABELS[key]}\\b`, 'g');
+      formattedMsg = formattedMsg.replace(regex, `"${t(`status.${key}`)}"`);
     });
     
+    Object.keys(STATUS_LABELS).forEach((key) => {
+       const regex = new RegExp(`\\b${key}\\b`, 'g');
+       formattedMsg = formattedMsg.replace(regex, `"${t(`status.${key}`)}"`);
+    });
+
     return formattedMsg;
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('es-ES', {
+    const locale = i18n.language?.startsWith('en') ? 'en-US' : 'es-ES';
+    return new Intl.DateTimeFormat(locale, {
       day: '2-digit',
       month: 'short',
       hour: '2-digit',
@@ -100,7 +135,7 @@ const Notifications = () => {
       <div className="page-container">
         <div className="loading-screen">
           <div className="spinner spinner-lg"></div>
-          <p>Cargando notificaciones...</p>
+          <p>{t('notifications.loading')}</p>
         </div>
       </div>
     );
@@ -110,9 +145,9 @@ const Notifications = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Notificaciones</h1>
+          <h1 className="page-title">{t('notifications.title')}</h1>
           <p className="page-subtitle">
-            Revisa y gestiona tus alertas y actualizaciones
+            {t('notifications.subtitle')}
           </p>
         </div>
       </div>
@@ -121,7 +156,7 @@ const Notifications = () => {
         {notifications.length === 0 ? (
           <div className="no-notifications">
             <Bell size={48} className="empty-icon" />
-            <p>No tienes notificaciones pendientes</p>
+            <p>{t('notifications.empty')}</p>
           </div>
         ) : (
           notifications.map((notification) => (
@@ -134,7 +169,7 @@ const Notifications = () => {
                 {getIcon(notification.type)}
               </div>
               <div className="notification-content">
-                <p className="notification-message">{formatNotificationMessage(notification.message)}</p>
+                <p className="notification-message">{formatNotificationMessage(notification.message, notification.type)}</p>
                 <div className="notification-meta">
                   {notification.ticket && (
                     <span className="notification-ticket-ref">
