@@ -202,10 +202,12 @@
     "bug": "Bug / Error",
     "otro": "Otro",
     "accesos_permisos": "Accesos / Permisos",
-    "consulta": "Consulta / Info",
+    "consulta": "Consulta / Información",
     "hardware": "Hardware",
-    "redes": "Redes / Infra",
-    "mejora": "Sugerencia / Mejora"
+    "redes": "Redes / Infraestructura",
+    "mejora": "Sugerencia / Mejora",
+    "software": "Software",
+    "ciberseguridad": "Ciberseguridad"
   },
   "time": {
     "seconds": "hace unos segundos",

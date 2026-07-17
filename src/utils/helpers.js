@@ -20,10 +20,12 @@ export const CATEGORY_LABELS = {
   solicitud_cambio: 'Solicitud de Cambio',
   bug: 'Bug / Error',
   accesos_permisos: 'Accesos / Permisos',
-  consulta: 'Consulta / Info',
+  consulta: 'Consulta / Información',
   hardware: 'Hardware',
-  redes: 'Redes / Infra',
+  redes: 'Redes / Infraestructura',
   mejora: 'Sugerencia / Mejora',
+  software: 'Software',
+  ciberseguridad: 'Ciberseguridad',
   otro: 'Otro',
 };
 
