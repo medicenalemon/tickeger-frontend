@@ -77,16 +77,16 @@ const Tickets = () => {
       const headers = ['Número', 'Título', 'Estado', 'Prioridad', 'Categoría', 'Creador', 'Asignado', 'Fecha de Creación'];
       const csvRows = [headers.join(',')];
 
-      data.tickets.forEach(t => {
+      data.tickets.forEach(ticket => {
         const row = [
-          t.ticketNumber,
-          `"${(t.title || '').replace(/"/g, '""')}"`,
-          t(`status.${t.status}`) || t.status,
-          t(`priority.${t.priority}`) || t.priority,
-          t(`category.${t.category}`) || t.category,
-          `"${(t.createdBy?.name || '').replace(/"/g, '""')}"`,
-          `"${(t.assignedTo?.name || 'Sin Asignar').replace(/"/g, '""')}"`,
-          formatDate(t.createdAt)
+          ticket.ticketNumber,
+          `"${(ticket.title || '').replace(/"/g, '""')}"`,
+          t(`status.${ticket.status}`) || ticket.status,
+          t(`priority.${ticket.priority}`) || ticket.priority,
+          t(`category.${ticket.category}`) || ticket.category,
+          `"${(ticket.createdBy?.name || '').replace(/"/g, '""')}"`,
+          `"${(ticket.assignedTo?.name || 'Sin Asignar').replace(/"/g, '""')}"`,
+          formatDate(ticket.createdAt)
         ];
         csvRows.push(row.join(','));
       });
