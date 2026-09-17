@@ -1,0 +1,33 @@
+{
+  "auth": {
+    "emailExists": "Email is already registered",
+    "registerError": "Error registering user",
+    "invalidCredentials": "Invalid credentials",
+    "accountDisabled": "Account disabled, please contact administrator",
+    "loginError": "Error logging in",
+    "profileError": "Error getting profile"
+  },
+  "ticket": {
+    "getTicketsError": "Error getting tickets",
+    "notFound": "Ticket not found",
+    "noPermissionView": "You do not have permission to view this ticket",
+    "getTicketError": "Error getting ticket",
+    "created": "Ticket created",
+    "createError": "Error creating ticket",
+    "noPermissionUpdate": "You do not have permission to update this ticket",
+    "updateError": "Error updating ticket",
+    "noPermissionAssign": "You do not have permission to assign this ticket",
+    "assignError": "Error assigning ticket",
+    "noPermissionStatus": "You do not have permission to change the status",
+    "statusChangeError": "Error changing status",
+    "addCommentError": "Error adding comment",
+    "getStatsError": "Error getting statistics",
+    "deleteSuccess": "Ticket deleted successfully",
+    "deleteError": "Error deleting ticket",
+    "linkInvalid": "Ticket not found. Check the ID or number.",
+    "linkSelf": "You cannot link a ticket to itself",
+    "noPermission": "You do not have permission",
+    "linkError": "Error linking ticket",
+    "unlinkError": "Error unlinking ticket"
+  }
+}

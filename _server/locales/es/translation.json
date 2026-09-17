@@ -1,0 +1,33 @@
+{
+  "auth": {
+    "emailExists": "El email ya está registrado",
+    "registerError": "Error al registrar usuario",
+    "invalidCredentials": "Credenciales inválidas",
+    "accountDisabled": "Cuenta desactivada, contacte al administrador",
+    "loginError": "Error al iniciar sesión",
+    "profileError": "Error al obtener perfil"
+  },
+  "ticket": {
+    "getTicketsError": "Error al obtener tickets",
+    "notFound": "Ticket no encontrado",
+    "noPermissionView": "No tienes permisos para ver este ticket",
+    "getTicketError": "Error al obtener ticket",
+    "created": "Ticket creado",
+    "createError": "Error al crear ticket",
+    "noPermissionUpdate": "No tienes permisos para actualizar este ticket",
+    "updateError": "Error al actualizar ticket",
+    "noPermissionAssign": "No tienes permisos para asignar este ticket",
+    "assignError": "Error al asignar ticket",
+    "noPermissionStatus": "No tienes permisos para cambiar el estado",
+    "statusChangeError": "Error al cambiar estado",
+    "addCommentError": "Error al agregar comentario",
+    "getStatsError": "Error al obtener estadísticas",
+    "deleteSuccess": "Ticket eliminado correctamente",
+    "deleteError": "Error al eliminar ticket",
+    "linkInvalid": "Ticket no encontrado. Verifica el ID o número.",
+    "linkSelf": "No puedes vincular un ticket consigo mismo",
+    "noPermission": "No tienes permisos",
+    "linkError": "Error al vincular ticket",
+    "unlinkError": "Error al desvincular ticket"
+  }
+}
